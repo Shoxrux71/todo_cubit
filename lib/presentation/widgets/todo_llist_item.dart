@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../data/models/tod.dart';
+import 'package:todo_cubit/logic/todo/todo_cubit.dart';
+import '../../data/models/data.dart';
 import 'manage_todo.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class todoList_Item extends StatelessWidget {
   final Todo todo;
@@ -14,27 +16,39 @@ class todoList_Item extends StatelessWidget {
     showModalBottomSheet(
       isDismissible: false,
       context: context,
-      builder: (ctx) => ManageTodo(),
+      builder: (ctx) => ManageTodo(
+        todo: todo,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(todo.isDone
-          ? Icons.check_circle_outline_outlined
-          : Icons.circle_outlined),
-      title: Text(todo.title),
+      leading: IconButton(
+        onPressed: () => context.read<TodoCubit>().toggleTodo(todo.id),
+        icon: Icon(todo.isDone
+            ? Icons.check_circle_outline_outlined
+            : Icons.circle_outlined),
+      ),
+      title: Text(
+        todo.title,
+        style: TextStyle(
+          decorationColor: Colors.green,
+          decoration:
+              todo.isDone ? TextDecoration.lineThrough : TextDecoration.none,
+        ),
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.delete),
+            onPressed: () => context.read<TodoCubit>().deleteTodo(todo.id),
+            icon: const Icon(Icons.delete),
           ),
           IconButton(
             onPressed: () => openManageTodo(context),
-            icon: Icon(Icons.edit),
+            icon: const Icon(Icons.edit),
           ),
         ],
       ),

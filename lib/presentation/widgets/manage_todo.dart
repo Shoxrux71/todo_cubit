@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todo_cubit/data/models/data.dart';
+import 'package:todo_cubit/logic/todo/todo_cubit.dart';
 import 'package:todo_cubit/todo/cubit/todo_cubit.dart';
 
 class ManageTodo extends StatelessWidget {
+  final Todo? todo;
   ManageTodo({
-    super.key,
-  });
+    Key? key,
+    this.todo,
+  }) : super(key: key);
 
   final _formKey = GlobalKey<FormState>();
   String _title = '';
@@ -13,17 +17,29 @@ class ManageTodo extends StatelessWidget {
   void _submit(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      if (todo == null) {
+        // BlocProvider.of<TodoCubit>(context).addTodo(_title);
+        context.read<TodoCubit>().addTodo(_title);
+      } else {
+        // BlocProvider.of<TodoCubit>(context).editTodo(
+        //   Todo(id: todo!.id, title: _title, isDone: todo!.isDone),
+        // );
+        context.read<TodoCubit>().editTodo(
+              todo!.id,
+              _title,
+              // Todo(id: todo!.id, title: _title, isDone: todo!.isDone),
+            );
+      }
       print(_title);
-
-      BlocProvider.of<TodoCubit>(context).addTodo(_title);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print(todo);
     return BlocListener<TodoCubit, TodoState>(
       listener: (context, state) {
-        if (state is TodoAdded) {
+        if (state is TodoAdded || state is TodoEdited) {
           Navigator.of(context).pop();
         } else if (state is TodoError) {
           showDialog(
@@ -43,7 +59,10 @@ class ManageTodo extends StatelessWidget {
             children: [
               TextFormField(
                 decoration: const InputDecoration(
-                    border: OutlineInputBorder(), labelText: 'Title'),
+                  border: OutlineInputBorder(),
+                  labelText: 'Title',
+                ),
+                initialValue: todo == null ? '' : todo!.title,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please,enter title!';
@@ -66,7 +85,7 @@ class ManageTodo extends StatelessWidget {
                   ),
                   ElevatedButton(
                     onPressed: () => _submit(context),
-                    child: const Text('Add'),
+                    child: Text(todo == null ? 'Add' : 'Edit'),
                   ),
                 ],
               ),

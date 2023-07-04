@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todo_cubit/logic/todo/todo_cubit.dart';
+import 'package:todo_cubit/presentation/screens/todo_details.dart';
 import 'package:todo_cubit/todo/cubit/todo_cubit.dart';
 import './presentation/screens/todo_screen.dart';
 
@@ -21,7 +23,12 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: const ToDoScreen(),
+        // home: const ToDoScreen(),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const ToDoScreen(),
+          '/todo-details': (context) => const TodoDetailsScreen(),
+        },
       ),
     );
   }
